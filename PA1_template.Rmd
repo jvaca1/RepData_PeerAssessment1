@@ -15,17 +15,16 @@ library(data.table)
 library(grid)
 library(lattice)
 library(knitr)
-echo = TRUE  #  make code visible
+echo = TRUE  
 
-# now load the data
-unzip("activitiy.zip")
+# load the data
 activityData <- read.csv("activity.csv", colClasses = c("integer", "Date", "factor"))
-aT <- data.table(activityData)
+data <- data.table(activityData)
 ```
 
 ```{r}
 # elminita NAs
-aS <-  aT[, list(totSteps = sum(steps, na.rm = TRUE)), by = date]
+data <-  data[, list(totSteps = sum(steps, na.rm = TRUE)), by = date]
 ```
 
 ## What is mean total number of steps taken per day?
@@ -33,26 +32,21 @@ aS <-  aT[, list(totSteps = sum(steps, na.rm = TRUE)), by = date]
 # the incomplete cases were previously removed
  
  
-smean<- round(mean(aS$totSteps), digits = 2)
-smedian<- median(aS$totSteps)
-prt <- c("mean:", round(smean, digits=2), "  median:", smedian)
+datamean<- round(mean(aS$totSteps), digits = 2)
+datamedian<- median(aS$totSteps)
+prt <- c("mean:", round(datamean, digits=2), "  median:", datamedian)
 prt
 ````
 
 ````{r}
- # Histograms are used to show distributions of variables.
- # Barplots are used to compare variables.
- # This histogram depicts the total number of steps each day, based on frequency.
- 
-
 hist(aS$totSteps, breaks=30, main = "Steps per Day Distribution",xlab = 'Total Number of Steps', col = 'grey') 
 
 #  And now add the mean and median values to the histogram.
-abline(v=smean, lwd = 3, col = 'red')
-abline(v=smedian, lwd = 3, col = 'green')
+abline(v=datamean, lwd = 3, col = 'red')
+abline(v=datamedian, lwd = 3, col = 'green')
 
 legend('topright', lty = 1, lwd = 3, col = c("red", "green"),
-        legend = c(paste('Mean: ', smean), paste('Median: ', smedian)))               
+        legend = c(paste('Mean: ', datamean), paste('Median: ', datamedian)))               
 ````
 
 ## What is the average daily activity pattern?
@@ -60,14 +54,14 @@ legend('topright', lty = 1, lwd = 3, col = c("red", "green"),
 ````{r}
 
 # Eliminate the NAs, calculate the average over each interval and add a new column
-aTnona <- na.omit(aT)
-avStep <- aggregate(aTnona$steps, list(interval = as.numeric(as.character(aTnona$interval))), FUN = "mean")
+datanew <- na.omit(data)
+datanew<- aggregate(datanew$steps, list(interval = as.numeric(as.character(aTnona$interval))), FUN = "mean")
 names(avStep)[2] <- "meanStep"
 
 # Get the maximum value and prepare the time series plot; include the maximum interval 
-smax<-max(avStep$meanStep)
-mgrob<- grobTree(textGrob(paste("Max Interval is", round(smax, digits=2), " ->"), x=0.22, y=0.95),gp=gpar(col="red", fontsize=11, fontface="italic"))
-ggplot(avStep, aes(interval, meanStep)) + geom_line(color = "blue", size = 0.5) + labs(title = "Time Series of 5-minute Intervals", x = "5-minute intervals", y = "Ave Steps")  + annotation_custom(mgrob)
+datamax<-max(avStep$meandatanew)
+mgrob<- grobTree(textGrob(paste("Max Interval is", round(datamax, digits=2), " ->"), x=0.22, y=0.95),gp=gpar(col="red", fontsize=11, fontface="italic"))
+ggplot(avStep, aes(interval, meandatanew)) + geom_line(color = "blue", size = 0.5) + labs(title = "Time Series of 5-minute Intervals", x = "5-minute intervals", y = "Ave Steps")  + annotation_custom(mgrob)
 
 
 ````
@@ -75,8 +69,8 @@ ggplot(avStep, aes(interval, meanStep)) + geom_line(color = "blue", size = 0.5) 
 ## Imputing missing values
 
 ````{r}
-missingValuesCount<- sum(is.na(aT$steps))
-rpt<- paste("Of ", length(aT$steps),  " there are ", missingValuesCount, " missing values.")
+missingValuesCount<- sum(is.na(data$steps))
+rpt<- paste("Of ", length(data$steps),  " there are ", missingValuesCount, " missing values.")
 print(rpt)
 ````
 
@@ -92,6 +86,6 @@ WeekDate <- function(date){
 }
 
 # Create a new colum with date classification (weekend or weekday)
-new_aTa$weekDay <- sapply(new_aTa$date, FUN=WeekDate)
+datanew$weekDay <- sapply(datamew$date, FUN=WeekDate)
 
 ````
